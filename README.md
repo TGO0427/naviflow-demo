@@ -6,7 +6,9 @@
 
 ## 🌟 Live Demo
 
-**[🔗 View Live Demo](https://your-username.github.io/naviflow-demo)** *(Link will be updated after deployment)*
+**[🔗 View Live Demo](https://TGO0427.github.io/naviflow-demo)** 
+
+*🚀 Interactive demo ready for prospects and investors*
 
 ## 🎯 What is NaviFlow?
 
