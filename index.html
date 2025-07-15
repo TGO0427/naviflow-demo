@@ -376,7 +376,9 @@
             localStorage.setItem('userLoggedIn', 'demo');
             localStorage.setItem('userEmail', 'demo@naviflow.com');
             localStorage.setItem('loginTime', new Date().toISOString());
-            window.location.href = 'air-freight-working.html';
+            
+            // Force redirect to working version
+            window.location.replace('air-freight-working.html');
         }
 
         // Guest access
@@ -416,7 +418,7 @@
         // Check if user is already logged in
         if (localStorage.getItem('userLoggedIn')) {
             // Optional: Auto-redirect if already logged in
-            // window.location.href = 'air-freight-clean.html';
+            // window.location.href = 'air-freight-working.html';
         }
     </script>
 </body>
