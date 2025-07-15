@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Aviation Weather - Air Freight App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">✈️ Aviation Weather Verification</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Service Status</h2>
+            <div id="serviceStatus" class="space-y-2">
+                <p>Loading...</p>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Test Results</h2>
+            <button onclick="testAviationWeather()" class="bg-blue-500 text-white px-4 py-2 rounded mr-4">
+                Test Aviation Weather
+            </button>
+            <button onclick="testRouteWeather()" class="bg-green-500 text-white px-4 py-2 rounded">
+                Test Route Weather
+            </button>
+            <div id="testResults" class="mt-4">
+                <p class="text-gray-500">Click a button to test</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Aviation Weather Service -->
+    <script src="env.js"></script>
+    <script src="aviation-weather-service.js"></script>
+
+    <script>
+        // Check service status on load
+        window.addEventListener('load', function() {
+            const statusDiv = document.getElementById('serviceStatus');
+            
+            if (window.AviationWeatherService) {
+                const status = window.AviationWeatherService.getStatus();
+                statusDiv.innerHTML = `
+                    <p class="text-green-600">✅ Aviation Weather Service: ${status.status}</p>
+                    <p class="text-gray-600">Provider: ${status.provider}</p>
+                    <p class="text-gray-600">Features: ${status.features.length} available</p>
+                    <p class="text-gray-600">Request Count: ${status.requestCount}</p>
+                `;
+                console.log('✅ Aviation Weather Service loaded:', status);
+            } else {
+                statusDiv.innerHTML = '<p class="text-red-600">❌ Aviation Weather Service not found</p>';
+                console.error('❌ Aviation Weather Service not loaded');
+            }
+            
+            // Check if old service exists
+            if (window.WeatherAPIService) {
+                statusDiv.innerHTML += '<p class="text-yellow-600">⚠️ Old marine weather service still present</p>';
+                console.warn('⚠️ Old WeatherAPIService still exists');
+            }
+        });
+        
+        async function testAviationWeather() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<p class="text-blue-600">Testing aviation weather...</p>';
+            
+            try {
+                const result = await window.AviationWeatherService.getAirportWeather('HKG');
+                resultsDiv.innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded p-4">
+                        <h3 class="font-semibold text-green-800">✅ Aviation Weather Test Successful</h3>
+                        <p><strong>Airport:</strong> ${result.airport} - ${result.airportName}</p>
+                        <p><strong>Temperature:</strong> ${result.current.temperature}°C</p>
+                        <p><strong>Wind:</strong> ${result.current.windSpeed} km/h</p>
+                        <p><strong>Visibility:</strong> ${result.current.visibility} km</p>
+                        <p><strong>Conditions:</strong> ${result.conditions.description}</p>
+                        <p><strong>Data Source:</strong> ${result.dataSource}</p>
+                        <p><strong>Live Data:</strong> ${result.isLive ? 'Yes' : 'No'}</p>
+                    </div>
+                `;
+                console.log('✅ Aviation weather test result:', result);
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded p-4">
+                        <h3 class="font-semibold text-red-800">❌ Aviation Weather Test Failed</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                console.error('❌ Aviation weather test failed:', error);
+            }
+        }
+        
+        async function testRouteWeather() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<p class="text-blue-600">Testing route weather...</p>';
+            
+            try {
+                const result = await window.AviationWeatherService.getRouteWeather('HKG', 'LAX');
+                resultsDiv.innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded p-4">
+                        <h3 class="font-semibold text-green-800">✅ Route Weather Test Successful</h3>
+                        <p><strong>Route:</strong> ${result.route}</p>
+                        <p><strong>Overall Risk:</strong> ${result.analysis.overallRisk}</p>
+                        <p><strong>Departure:</strong> ${result.analysis.departureConditions}</p>
+                        <p><strong>Arrival:</strong> ${result.analysis.arrivalConditions}</p>
+                        <p><strong>Live Data:</strong> ${result.isLive ? 'Yes' : 'No'}</p>
+                    </div>
+                `;
+                console.log('✅ Route weather test result:', result);
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded p-4">
+                        <h3 class="font-semibold text-red-800">❌ Route Weather Test Failed</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                console.error('❌ Route weather test failed:', error);
+            }
+        }
+    </script>
+</body>
+</html>

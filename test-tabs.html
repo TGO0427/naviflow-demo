@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="flex">
+        <nav class="w-64 bg-gray-100 p-4">
+            <a href="#" onclick="showPage('page1'); return false;" class="block p-2 mb-2 bg-blue-100">Page 1</a>
+            <a href="#" onclick="showPage('page2'); return false;" class="block p-2 mb-2">Page 2</a>
+            <a href="#" onclick="showPage('page3'); return false;" class="block p-2 mb-2">Page 3</a>
+        </nav>
+        
+        <main class="flex-1 p-4">
+            <div id="page1" class="page active">
+                <h1>Page 1 Content</h1>
+                <p>This is page 1</p>
+            </div>
+            <div id="page2" class="page">
+                <h1>Page 2 Content</h1>
+                <p>This is page 2</p>
+            </div>
+            <div id="page3" class="page">
+                <h1>Page 3 Content</h1>
+                <p>This is page 3</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            console.log('Switching to:', pageId);
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                console.log('Page shown:', pageId);
+            } else {
+                console.error('Page not found:', pageId);
+            }
+            
+            // Update nav highlighting
+            document.querySelectorAll('nav a').forEach(link => {
+                link.classList.remove('bg-blue-100');
+            });
+            
+            const activeLink = document.querySelector(`nav a[onclick*="showPage('${pageId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('bg-blue-100');
+            }
+        }
+        
+        window.showPage = showPage;
+    </script>
+</body>
+</html>

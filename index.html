@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NaviFlow Air Cargo Intelligence - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
+            min-height: 100vh;
+        }
+        .login-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .pulse-dot {
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .floating-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-600 to-cyan-500 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="floating-icon mb-4">
+                <img src="naviflow-logo-v2.png?v=2" alt="NaviFlow Logo" class="h-20 w-auto mx-auto rounded-lg shadow-lg">
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-4">NaviFlow E-Commerce Shield</h2>
+            <div class="flex space-x-1 justify-center">
+                <div class="w-3 h-3 bg-white rounded-full pulse-dot" style="animation-delay: 0s;"></div>
+                <div class="w-3 h-3 bg-white rounded-full pulse-dot" style="animation-delay: 0.3s;"></div>
+                <div class="w-3 h-3 bg-white rounded-full pulse-dot" style="animation-delay: 0.6s;"></div>
+            </div>
+            <p class="text-blue-100 mt-4 text-sm">Initializing Aviation Weather Intelligence...</p>
+        </div>
+    </div>
+
+    <!-- Main Login Screen -->
+    <div id="mainContent" class="hidden min-h-screen flex">
+        <!-- Left Panel - Features & Info -->
+        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-600 p-12 flex-col justify-center">
+            <div class="max-w-lg">
+                <div class="flex items-center mb-8">
+                    <img src="naviflow-logo-v2.png?v=2" alt="NaviFlow Logo" class="h-20 w-auto mr-6 rounded-lg shadow-lg">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">NaviFlow E-Commerce Shield</h1>
+                        <p class="text-blue-100">Optimizing every mile</p>
+                        <p class="text-sm text-blue-200">Amazon Sellers • Customer Notifications • 5-Star Protection</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="feature-card bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">🌤️</span>
+                            <h3 class="text-xl font-semibold text-white">Customer Service Automation</h3>
+                        </div>
+                        <p class="text-blue-100 text-sm">Stop drowning in "Where's my order?" emails. Auto-notify customers about weather delays before they contact you.</p>
+                    </div>
+
+                    <div class="feature-card bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">🛩️</span>
+                            <h3 class="text-xl font-semibold text-white">Professional Notifications</h3>
+                        </div>
+                        <p class="text-blue-100 text-sm">Send branded weather delay alerts that make you look like Amazon, not a garage seller. Build customer trust.</p>
+                    </div>
+
+                    <div class="feature-card bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">📱</span>
+                            <h3 class="text-xl font-semibold text-white">Amazon/eBay Protection</h3>
+                        </div>
+                        <p class="text-blue-100 text-sm">Auto-generate weather delay documentation for marketplace disputes. Protect your seller metrics from unfair penalties.</p>
+                    </div>
+
+                    <div class="feature-card bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">📊</span>
+                            <h3 class="text-xl font-semibold text-white">Review & Rating Shield</h3>
+                        </div>
+                        <p class="text-blue-100 text-sm">Proactive communication prevents bad reviews. Keep customers informed and happy even when weather hits your shipments.</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-green-500/20 border border-green-400/30 rounded-lg">
+                    <div class="flex items-center">
+                        <span class="text-green-400 text-sm font-medium">🟢 System Status:</span>
+                        <span class="text-green-300 text-sm ml-2">All services operational</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Login Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+            <div class="login-card rounded-2xl shadow-2xl p-8 w-full max-w-md">
+                <div class="text-center mb-8">
+                    <img src="naviflow-logo-v2.png?v=2" alt="NaviFlow Logo" class="h-16 w-auto mx-auto mb-4 rounded">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+                    <p class="text-gray-600">Sign in to protect your e-commerce business</p>
+                </div>
+
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="email" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                               placeholder="seller@yourbrand.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="password" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                               placeholder="••••••••">
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">
+                        Sign In to E-Commerce Shield
+                    </button>
+                </form>
+
+                <!-- Quick Access Buttons -->
+                <div class="mt-6 space-y-3">
+                    <button onclick="demoLogin()" 
+                            class="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors border border-gray-300">
+                        🎬 Demo Mode (No Login Required)
+                    </button>
+                    
+                    <button onclick="guestAccess()" 
+                            class="w-full bg-green-50 text-green-700 py-3 px-4 rounded-lg font-medium hover:bg-green-100 transition-colors border border-green-300">
+                        👤 Guest Access
+                    </button>
+                </div>
+
+                <!-- Help Link -->
+                <div class="mt-6 text-center">
+                    <button onclick="showHelp()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        📖 Need help? View User Guide
+                    </button>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                    <p class="text-xs text-gray-500">
+                        NaviFlow Supply Chain Intelligence v3.0<br>
+                        Powered by Open-Meteo Weather API
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-800">📖 User Guide & Help</h2>
+                    <button onclick="closeHelp()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Getting Started -->
+                    <div class="bg-blue-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-4">🚀 Getting Started</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-start">
+                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">1</span>
+                                <div>
+                                    <p class="font-medium">Login or Use Demo</p>
+                                    <p class="text-blue-700">Choose "Demo Mode" for instant access or use guest credentials</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">2</span>
+                                <div>
+                                    <p class="font-medium">Navigate Features</p>
+                                    <p class="text-blue-700">Use sidebar to access Aviation Weather and Route Analysis</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">3</span>
+                                <div>
+                                    <p class="font-medium">Select Airports</p>
+                                    <p class="text-blue-700">Choose from 23 major cargo airports across 6 regions</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weather Intelligence -->
+                    <div class="bg-green-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-green-800 mb-4">🌤️ Weather Intelligence</h3>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <p class="font-medium text-green-800">Real-Time Data</p>
+                                <p class="text-green-700">Live weather from Open-Meteo API with 10-minute cache refresh</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-green-800">Aviation Metrics</p>
+                                <p class="text-green-700">Temperature, wind speed, visibility, humidity, cloud cover</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-green-800">Flight Impact</p>
+                                <p class="text-green-700">Risk assessment, delay probability, cargo handling conditions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Route Analysis -->
+                    <div class="bg-purple-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-purple-800 mb-4">🛩️ Route Analysis</h3>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <p class="font-medium text-purple-800">Flight Planning</p>
+                                <p class="text-purple-700">Select aircraft type, departure time, and cargo weight</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-purple-800">Route Optimization</p>
+                                <p class="text-purple-700">Compare direct, northern, and southern route alternatives</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-purple-800">Cost Analysis</p>
+                                <p class="text-purple-700">Fuel consumption, flight time, and efficiency calculations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div class="bg-yellow-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-yellow-800 mb-4">📱 Smart Notifications</h3>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <p class="font-medium text-yellow-800">WhatsApp Integration</p>
+                                <p class="text-yellow-700">Setup phone number for weather alerts and flight updates</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-yellow-800">Alert Types</p>
+                                <p class="text-yellow-700">Weather changes, flight delays, cargo status updates</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-yellow-800">Test Function</p>
+                                <p class="text-yellow-700">Send test notifications to verify setup</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Airport List -->
+                <div class="mt-6 bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🌍 Supported Airports</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">🌏 Asia Pacific</h4>
+                            <ul class="space-y-1 text-gray-600">
+                                <li>HKG - Hong Kong International</li>
+                                <li>SIN - Singapore Changi</li>
+                                <li>ICN - Seoul Incheon</li>
+                                <li>NRT - Tokyo Narita</li>
+                                <li>PVG - Shanghai Pudong</li>
+                                <li>BOM - Mumbai</li>
+                                <li>SYD - Sydney Kingsford Smith</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">🇪🇺 Europe</h4>
+                            <ul class="space-y-1 text-gray-600">
+                                <li>FRA - Frankfurt Airport</li>
+                                <li>CDG - Paris Charles de Gaulle</li>
+                                <li>AMS - Amsterdam Schiphol</li>
+                                <li>LHR - London Heathrow</li>
+                                <li>IST - Istanbul Airport</li>
+                                <li>LGG - Liège Airport</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">🇺🇸 North America</h4>
+                            <ul class="space-y-1 text-gray-600">
+                                <li>ANC - Anchorage International</li>
+                                <li>MIA - Miami International</li>
+                                <li>LAX - Los Angeles International</li>
+                                <li>ORD - Chicago O'Hare</li>
+                                <li>JFK - New York JFK</li>
+                                <li>YYZ - Toronto Pearson</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support -->
+                <div class="mt-6 bg-red-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-red-800 mb-4">🆘 Support & Troubleshooting</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <h4 class="font-medium text-red-800 mb-2">Common Issues</h4>
+                            <ul class="space-y-1 text-red-700">
+                                <li>• Weather data not loading: Check internet connection</li>
+                                <li>• Slow performance: Clear browser cache</li>
+                                <li>• Login issues: Use Demo Mode or Guest Access</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-red-800 mb-2">Contact Information</h4>
+                            <ul class="space-y-1 text-red-700">
+                                <li>• Email: support@naviflow.com</li>
+                                <li>• Phone: +1 (555) 123-NERV</li>
+                                <li>• Documentation: docs.naviflow.com</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simulate login validation
+            if (email && password) {
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                localStorage.setItem('loginTime', new Date().toISOString());
+                
+                // Redirect to main application
+                window.location.href = 'air-freight-clean.html';
+            } else {
+                alert('Please enter both email and password');
+            }
+        });
+
+        // Demo login
+        function demoLogin() {
+            localStorage.setItem('userLoggedIn', 'demo');
+            localStorage.setItem('userEmail', 'demo@naviflow.com');
+            localStorage.setItem('loginTime', new Date().toISOString());
+            window.location.href = 'air-freight-clean.html';
+        }
+
+        // Guest access
+        function guestAccess() {
+            localStorage.setItem('userLoggedIn', 'guest');
+            localStorage.setItem('userEmail', 'guest@naviflow.com');
+            localStorage.setItem('loginTime', new Date().toISOString());
+            window.location.href = 'air-freight-clean.html';
+        }
+
+        // Help modal functions
+        function showHelp() {
+            document.getElementById('helpModal').classList.remove('hidden');
+            document.getElementById('helpModal').classList.add('flex');
+        }
+
+        function closeHelp() {
+            document.getElementById('helpModal').classList.add('hidden');
+            document.getElementById('helpModal').classList.remove('flex');
+        }
+
+        // Close modal on background click
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHelp();
+            }
+        });
+
+        // Loading screen
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Check if user is already logged in
+        if (localStorage.getItem('userLoggedIn')) {
+            // Optional: Auto-redirect if already logged in
+            // window.location.href = 'air-freight-clean.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+# Environment Variables (NEVER COMMIT)
+.env
+.env.local
+.env.production
+.env.staging
+
+# API Keys and Secrets
+api-keys.txt
+secrets.json
+config/private.js
+
+# Node Modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build Output
+dist/
+build/
+.vite/
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Temporary folders
+tmp/
+temp/
+
+# Air Freight App Specific
+# Generated environment file (regenerated on build)
+# env.js - keep this commented if you want to track the generated file
+
+# Backup files
+*.backup
+*.bak
+
+# Production builds
+/public/build/
+/static/build/
+
+# Optional: Uncomment to ignore generated env.js
+# env.js

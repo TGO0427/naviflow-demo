@@ -1,0 +1,488 @@
+// Real Weather API Service Integration
+// Using Open-Meteo Weather API for Aviation (Free for non-commercial use)
+
+class WeatherAPIService {
+    constructor() {
+        this.baseUrl = 'https://api.open-meteo.com/v1/forecast';
+        this.cache = new Map();
+        this.cacheTimeout = 10 * 60 * 1000; // 10 minutes cache
+        this.requestCount = 0;
+        this.maxRequestsPerHour = 100; // Conservative limit
+        this.initialized = false;
+        
+        this.init();
+    }
+
+    init() {
+        console.log('✈️ Initializing Aviation Weather API Service...');
+        console.log('📍 Provider: Open-Meteo Weather API');
+        console.log('💰 Cost: FREE (non-commercial use)');
+        console.log('🚀 Status: Ready for Aviation Weather');
+        this.initialized = true;
+    }
+
+    // Get coordinates for major airports
+    getAirportCoordinates(airportCode) {
+        const airportCoordinates = {
+            // Major Air Cargo Airports - Asia Pacific
+            'HKG': { lat: 22.3080, lon: 113.9185, name: 'Hong Kong International' },
+            'SIN': { lat: 1.3644, lon: 103.9915, name: 'Singapore Changi' },
+            'ICN': { lat: 37.4602, lon: 126.4407, name: 'Seoul Incheon' },
+            'NRT': { lat: 35.7647, lon: 140.3864, name: 'Tokyo Narita' },
+            'PVG': { lat: 31.1443, lon: 121.8083, name: 'Shanghai Pudong' },
+            'BOM': { lat: 19.0896, lon: 72.8656, name: 'Mumbai' },
+            'SYD': { lat: -33.9399, lon: 151.1753, name: 'Sydney Kingsford Smith' },
+            
+            // Major Air Cargo Airports - Europe
+            'FRA': { lat: 50.0379, lon: 8.5622, name: 'Frankfurt Airport' },
+            'CDG': { lat: 49.0097, lon: 2.5479, name: 'Paris Charles de Gaulle' },
+            'AMS': { lat: 52.3105, lon: 4.7683, name: 'Amsterdam Schiphol' },
+            'LHR': { lat: 51.4700, lon: -0.4543, name: 'London Heathrow' },
+            'IST': { lat: 41.2753, lon: 28.7519, name: 'Istanbul Airport' },
+            'LGG': { lat: 50.6374, lon: 5.4432, name: 'Liège Airport' },
+            
+            // Major Air Cargo Airports - North America
+            'ANC': { lat: 61.1744, lon: -149.9961, name: 'Anchorage International' },
+            'MIA': { lat: 25.7959, lon: -80.2870, name: 'Miami International' },
+            'LAX': { lat: 33.9434, lon: -118.4081, name: 'Los Angeles International' },
+            'ORD': { lat: 41.9742, lon: -87.9073, name: 'Chicago O\'Hare' },
+            'JFK': { lat: 40.6413, lon: -73.7781, name: 'New York JFK' },
+            'YYZ': { lat: 43.6777, lon: -79.6248, name: 'Toronto Pearson' },
+            
+            // Major Air Cargo Airports - Middle East & Africa
+            'DXB': { lat: 25.2532, lon: 55.3657, name: 'Dubai International' },
+            'DOH': { lat: 25.2609, lon: 51.6138, name: 'Doha Hamad International' },
+            'CAI': { lat: 30.1219, lon: 31.4056, name: 'Cairo International' },
+            'JNB': { lat: -26.1367, lon: 28.2411, name: 'Johannesburg O.R. Tambo' },
+            'CPT': { lat: -33.9687, lon: 18.6017, name: 'Cape Town International' },
+            
+            // Major Air Cargo Airports - South America
+            'GRU': { lat: -23.4356, lon: -46.4731, name: 'São Paulo Guarulhos' },
+            'BOG': { lat: 4.7016, lon: -74.1469, name: 'Bogotá El Dorado' }
+        };
+
+        return airportCoordinates[airportCode] || airportCoordinates[Object.keys(airportCoordinates).find(key => 
+            airportCoordinates[key].name.toLowerCase().includes(airportCode.toLowerCase())
+        )] || { lat: 0, lon: 0, name: 'Unknown Airport' };
+    }
+
+    // Check cache for existing data
+    getCachedData(cacheKey) {
+        const cached = this.cache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+            console.log('📦 Using cached weather data for', cacheKey);
+            return cached.data;
+        }
+        return null;
+    }
+
+    // Store data in cache
+    setCachedData(cacheKey, data) {
+        this.cache.set(cacheKey, {
+            data: data,
+            timestamp: Date.now()
+        });
+    }
+
+    // Rate limiting check
+    checkRateLimit() {
+        if (this.requestCount >= this.maxRequestsPerHour) {
+            console.warn('⚠️ Rate limit approached, using cached data');
+            return false;
+        }
+        return true;
+    }
+
+    // Get aviation weather data for a specific airport
+    async getAirportWeather(airportCode) {
+        const cacheKey = `airport_weather_${airportCode}`;
+        const cached = this.getCachedData(cacheKey);
+        if (cached) return cached;
+
+        if (!this.checkRateLimit()) {
+            return this.getFallbackWeatherData(airportCode);
+        }
+
+        try {
+            const coords = this.getAirportCoordinates(airportCode);
+            if (coords.lat === 0 && coords.lon === 0) {
+                console.warn(`⚠️ No coordinates found for airport: ${airportCode}`);
+                return this.getFallbackWeatherData(airportCode);
+            }
+
+            const url = `${this.baseUrl}?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,weather_code,pressure_msl,cloud_cover,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,precipitation_hours,wind_speed_10m_max,wind_gusts_10m_max&forecast_days=7&timezone=auto`;
+
+            console.log(`✈️ Fetching aviation weather data for ${airportCode}...`);
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`Weather API error: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            this.requestCount++;
+            
+            const processedData = this.processAviationWeatherData(data, airportCode, coords);
+            this.setCachedData(cacheKey, processedData);
+            
+            console.log(`✅ Aviation weather data retrieved for ${airportCode}`);
+            return processedData;
+
+        } catch (error) {
+            console.error(`❌ Weather API error for ${airportCode}:`, error);
+            return this.getFallbackWeatherData(airportCode);
+        }
+    }
+
+    // Get route weather analysis for aviation
+    async getRouteWeather(originAirport, destinationAirport) {
+        const cacheKey = `route_weather_${originAirport}_${destinationAirport}`;
+        const cached = this.getCachedData(cacheKey);
+        if (cached) return cached;
+
+        try {
+            console.log(`✈️ Analyzing flight route weather: ${originAirport} → ${destinationAirport}`);
+            
+            // Get weather for both airports
+            const originWeather = await this.getAirportWeather(originAirport);
+            const destinationWeather = await this.getAirportWeather(destinationAirport);
+            
+            // Analyze route conditions
+            const routeAnalysis = this.analyzeFlightRouteConditions(originWeather, destinationWeather, originAirport, destinationAirport);
+            
+            this.setCachedData(cacheKey, routeAnalysis);
+            return routeAnalysis;
+
+        } catch (error) {
+            console.error(`❌ Route weather analysis error:`, error);
+            return this.getFallbackRouteWeather(originAirport, destinationAirport);
+        }
+    }
+
+    // Process aviation weather data from API
+    processAviationWeatherData(rawData, airportCode, coords) {
+        const current = rawData.current;
+        const hourly = rawData.hourly;
+        const daily = rawData.daily;
+        
+        return {
+            airport: airportCode,
+            airportName: coords.name,
+            timestamp: new Date().toISOString(),
+            current: {
+                temperature: current.temperature_2m || 0,
+                apparentTemperature: current.apparent_temperature || 0,
+                humidity: current.relative_humidity_2m || 0,
+                pressure: current.pressure_msl || 1013,
+                windSpeed: current.wind_speed_10m || 0,
+                windDirection: current.wind_direction_10m || 0,
+                windGusts: current.wind_gusts_10m || 0,
+                cloudCover: current.cloud_cover || 0,
+                precipitation: current.precipitation || 0,
+                weatherCode: current.weather_code || 0,
+                visibility: this.calculateVisibility(current.cloud_cover, current.precipitation)
+            },
+            forecast: {
+                maxTemperature: daily.temperature_2m_max?.[0] || 0,
+                minTemperature: daily.temperature_2m_min?.[0] || 0,
+                maxWindSpeed: daily.wind_speed_10m_max?.[0] || 0,
+                maxWindGusts: daily.wind_gusts_10m_max?.[0] || 0,
+                precipitationSum: daily.precipitation_sum?.[0] || 0,
+                rainSum: daily.rain_sum?.[0] || 0,
+                snowfallSum: daily.snowfall_sum?.[0] || 0,
+                weatherCode: daily.weather_code?.[0] || 0
+            },
+            conditions: this.assessAviationConditions(current, daily),
+            dataSource: 'Open-Meteo Weather API',
+            isLive: true
+        };
+    }
+
+    // Assess weather conditions
+    assessConditions(current, daily) {
+        const currentWaveHeight = current.wave_height?.[0] || 0;
+        const maxWaveHeight = daily.wave_height_max?.[0] || 0;
+        const windWaveHeight = current.wind_wave_height?.[0] || 0;
+        
+        let severity = 'normal';
+        let description = 'Favorable conditions';
+        let recommendations = [];
+        
+        if (maxWaveHeight > 6) {
+            severity = 'severe';
+            description = 'High seas with significant wave heights';
+            recommendations.push('Consider route deviation', 'Monitor weather updates closely', 'Prepare for rough conditions');
+        } else if (maxWaveHeight > 4) {
+            severity = 'moderate';
+            description = 'Moderate sea conditions';
+            recommendations.push('Standard precautions advised', 'Monitor conditions');
+        } else if (maxWaveHeight > 2) {
+            severity = 'light';
+            description = 'Slight sea conditions';
+            recommendations.push('Good conditions for sailing');
+        }
+        
+        return {
+            severity,
+            description,
+            recommendations,
+            waveCondition: this.classifyWaveCondition(maxWaveHeight),
+            safetyLevel: this.calculateSafetyLevel(currentWaveHeight, windWaveHeight)
+        };
+    }
+
+    classifyWaveCondition(waveHeight) {
+        if (waveHeight <= 0.5) return 'Calm';
+        if (waveHeight <= 1.5) return 'Light';
+        if (waveHeight <= 2.5) return 'Moderate';
+        if (waveHeight <= 4) return 'Rough';
+        if (waveHeight <= 6) return 'Very Rough';
+        return 'High';
+    }
+
+    calculateSafetyLevel(currentWave, windWave) {
+        const combinedWave = Math.max(currentWave, windWave);
+        if (combinedWave <= 1) return 'Excellent';
+        if (combinedWave <= 2) return 'Good';
+        if (combinedWave <= 3) return 'Fair';
+        if (combinedWave <= 4) return 'Poor';
+        return 'Dangerous';
+    }
+
+    // Analyze route conditions
+    analyzeRouteConditions(originWeather, destinationWeather, originPort, destinationPort) {
+        const avgWaveHeight = (originWeather.current.waveHeight + destinationWeather.current.waveHeight) / 2;
+        const maxWaveHeight = Math.max(originWeather.forecast.maxWaveHeight, destinationWeather.forecast.maxWaveHeight);
+        
+        let overallRisk = 'Low';
+        let recommendations = [];
+        let alerts = [];
+        
+        if (maxWaveHeight > 5) {
+            overallRisk = 'High';
+            alerts.push('High wave conditions expected along route');
+            recommendations.push('Consider alternative route', 'Delay departure if possible', 'Ensure vessel is equipped for rough seas');
+        } else if (maxWaveHeight > 3) {
+            overallRisk = 'Moderate';
+            recommendations.push('Monitor weather updates', 'Maintain standard safety protocols');
+        } else {
+            recommendations.push('Favorable conditions for transit', 'Maintain regular watch schedule');
+        }
+        
+        return {
+            route: `${originPort} → ${destinationPort}`,
+            origin: originWeather,
+            destination: destinationWeather,
+            analysis: {
+                overallRisk,
+                averageWaveHeight: avgWaveHeight,
+                maxWaveHeight,
+                estimatedConditions: this.classifyWaveCondition(maxWaveHeight),
+                recommendations,
+                alerts
+            },
+            timestamp: new Date().toISOString(),
+            dataSource: 'Open-Meteo Marine API',
+            isLive: true
+        };
+    }
+
+    // Fallback weather data when API fails
+    getFallbackWeatherData(portName) {
+        console.log(`🔄 Using fallback weather data for ${portName}`);
+        
+        // Generate realistic fallback data based on geographical location
+        const baseWaveHeight = Math.random() * 2 + 0.5;
+        const baseTemp = this.getBaseTemperature(portName);
+        
+        return {
+            port: portName,
+            timestamp: new Date().toISOString(),
+            current: {
+                waveHeight: baseWaveHeight,
+                waveDirection: Math.random() * 360,
+                wavePeriod: Math.random() * 5 + 3,
+                windWaveHeight: baseWaveHeight * 0.7,
+                swellHeight: baseWaveHeight * 0.8,
+                swellDirection: Math.random() * 360,
+                oceanCurrent: Math.random() * 2,
+                currentDirection: Math.random() * 360,
+                seaTemperature: baseTemp
+            },
+            forecast: {
+                maxWaveHeight: baseWaveHeight * 1.5,
+                dominantWaveDirection: Math.random() * 360,
+                maxWavePeriod: Math.random() * 3 + 5,
+                maxWindWaveHeight: baseWaveHeight * 1.2,
+                maxSwellHeight: baseWaveHeight * 1.3
+            },
+            conditions: {
+                severity: 'normal',
+                description: 'Moderate sea conditions (estimated)',
+                recommendations: ['Standard maritime precautions'],
+                waveCondition: this.classifyWaveCondition(baseWaveHeight),
+                safetyLevel: 'Good'
+            },
+            dataSource: 'Fallback (Estimated)',
+            isLive: false
+        };
+    }
+
+    getFallbackRouteWeather(originPort, destinationPort) {
+        const originWeather = this.getFallbackWeatherData(originPort);
+        const destinationWeather = this.getFallbackWeatherData(destinationPort);
+        
+        return {
+            route: `${originPort} → ${destinationPort}`,
+            origin: originWeather,
+            destination: destinationWeather,
+            analysis: {
+                overallRisk: 'Moderate',
+                averageWaveHeight: 1.5,
+                maxWaveHeight: 2.5,
+                estimatedConditions: 'Moderate',
+                recommendations: ['Standard route precautions', 'Monitor weather updates'],
+                alerts: ['Weather data estimated - verify with local sources']
+            },
+            timestamp: new Date().toISOString(),
+            dataSource: 'Fallback (Estimated)',
+            isLive: false
+        };
+    }
+
+    getBaseTemperature(portName) {
+        const tempMap = {
+            'Shanghai': 15, 'Singapore': 28, 'Dubai': 25, 'Mumbai': 27,
+            'Rotterdam': 10, 'Hamburg': 8, 'Durban': 22, 'Cape Town': 18,
+            'New York': 12, 'Los Angeles': 18, 'Sydney': 20, 'Tokyo': 16
+        };
+        return tempMap[portName] || 20;
+    }
+
+    // Get API status
+    getStatus() {
+        return {
+            provider: 'Open-Meteo Marine Weather API',
+            status: this.initialized ? 'Active' : 'Inactive',
+            cost: 'FREE (non-commercial use)',
+            requestCount: this.requestCount,
+            maxRequests: this.maxRequestsPerHour,
+            cacheSize: this.cache.size,
+            features: [
+                'Marine weather forecasts',
+                'Wave height and direction',
+                'Ocean currents',
+                'Sea surface temperature',
+                'Swell conditions',
+                '7-day forecasts'
+            ]
+        };
+    }
+
+    // Test API connectivity
+    async testAPI() {
+        console.log('🧪 Testing Weather API connectivity...');
+        
+        try {
+            // Test with Singapore coordinates (known port)
+            const testResult = await this.getPortWeather('Singapore');
+            
+            if (testResult.isLive) {
+                console.log('✅ Weather API test successful - live data received');
+                console.log('📊 Sample data:', {
+                    port: testResult.port,
+                    waveHeight: testResult.current.waveHeight,
+                    seaTemp: testResult.current.seaTemperature,
+                    condition: testResult.conditions.waveCondition
+                });
+                return {
+                    success: true,
+                    message: 'Weather API working correctly',
+                    sampleData: testResult,
+                    dataSource: 'Live API'
+                };
+            } else {
+                console.log('⚠️  Weather API test using fallback data');
+                return {
+                    success: false,
+                    message: 'API unavailable, using fallback data',
+                    sampleData: testResult,
+                    dataSource: 'Fallback'
+                };
+            }
+        } catch (error) {
+            console.error('❌ Weather API test failed:', error);
+            return {
+                success: false,
+                message: `API test failed: ${error.message}`,
+                error: error.message,
+                dataSource: 'Error'
+            };
+        }
+    }
+
+    // Test route analysis
+    async testRouteAnalysis() {
+        console.log('🧪 Testing Route Weather Analysis...');
+        
+        try {
+            const routeTest = await this.getRouteWeather('Singapore', 'Shanghai');
+            
+            console.log('✅ Route analysis test completed');
+            console.log('📊 Route analysis:', {
+                route: routeTest.route,
+                risk: routeTest.analysis.overallRisk,
+                maxWaves: routeTest.analysis.maxWaveHeight,
+                isLive: routeTest.isLive
+            });
+            
+            return {
+                success: true,
+                message: 'Route analysis working correctly',
+                sampleData: routeTest
+            };
+        } catch (error) {
+            console.error('❌ Route analysis test failed:', error);
+            return {
+                success: false,
+                message: `Route analysis failed: ${error.message}`,
+                error: error.message
+            };
+        }
+    }
+
+    // Comprehensive API test
+    async runFullTest() {
+        console.log('🚀 Running comprehensive weather API tests...');
+        
+        const results = {
+            apiTest: await this.testAPI(),
+            routeTest: await this.testRouteAnalysis(),
+            status: this.getStatus()
+        };
+        
+        const allPassed = results.apiTest.success && results.routeTest.success;
+        
+        console.log('📋 Test Results Summary:');
+        console.log(`   API Connectivity: ${results.apiTest.success ? '✅' : '❌'}`);
+        console.log(`   Route Analysis: ${results.routeTest.success ? '✅' : '❌'}`);
+        console.log(`   Overall Status: ${allPassed ? '✅ PASSED' : '⚠️  PARTIAL/FAILED'}`);
+        
+        return {
+            ...results,
+            overallSuccess: allPassed,
+            timestamp: new Date().toISOString()
+        };
+    }
+}
+
+// Initialize the weather service
+window.WeatherAPIService = new WeatherAPIService();
+
+console.log('🌊 Weather API Service loaded and ready!');
+console.log('📊 Status:', window.WeatherAPIService.getStatus());
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = WeatherAPIService;
+}

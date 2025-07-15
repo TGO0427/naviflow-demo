@@ -1,0 +1,25 @@
+{
+  "name": "naviflow-live-chat",
+  "version": "1.0.0",
+  "description": "NaviFlow Live Chat Server for Demo Launch",
+  "main": "live-chat-server.js",
+  "scripts": {
+    "start": "node live-chat-server.js",
+    "dev": "nodemon live-chat-server.js"
+  },
+  "keywords": [
+    "naviflow",
+    "chat",
+    "websocket",
+    "demo",
+    "support"
+  ],
+  "author": "Tino",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

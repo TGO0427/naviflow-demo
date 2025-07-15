@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Aviation Weather</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Aviation Weather Debug Test</h1>
+    
+    <div id="results">
+        <p>Loading diagnostic tests...</p>
+    </div>
+
+    <script>
+        async function runDiagnostics() {
+            const resultsDiv = document.getElementById('results');
+            let html = '';
+
+            // Test 1: Check if aviation weather service file loads
+            html += '<h2>Test 1: Aviation Weather Service File</h2>';
+            try {
+                const response = await fetch('aviation-weather-service.js');
+                if (response.ok) {
+                    html += '<div class="status success">✅ aviation-weather-service.js file loads successfully</div>';
+                } else {
+                    html += '<div class="status error">❌ aviation-weather-service.js file not found (404)</div>';
+                }
+            } catch (error) {
+                html += '<div class="status error">❌ Error loading aviation-weather-service.js: ' + error.message + '</div>';
+            }
+
+            // Test 2: Check if window.AviationWeatherService exists
+            html += '<h2>Test 2: Aviation Weather Service Object</h2>';
+            if (window.AviationWeatherService) {
+                html += '<div class="status success">✅ window.AviationWeatherService object exists</div>';
+                
+                // Test service status
+                try {
+                    const status = window.AviationWeatherService.getStatus();
+                    html += '<div class="status info">📊 Service Status: ' + JSON.stringify(status, null, 2) + '</div>';
+                } catch (error) {
+                    html += '<div class="status error">❌ Error getting service status: ' + error.message + '</div>';
+                }
+            } else {
+                html += '<div class="status error">❌ window.AviationWeatherService object not found</div>';
+            }
+
+            // Test 3: Test basic weather API call
+            html += '<h2>Test 3: Aviation Weather API Call</h2>';
+            if (window.AviationWeatherService) {
+                try {
+                    html += '<div class="status info">🔄 Testing aviation weather API call...</div>';
+                    const testResult = await window.AviationWeatherService.getAirportWeather('HKG');
+                    html += '<div class="status success">✅ Aviation weather API call successful!</div>';
+                    html += '<div class="status info">📊 Sample Response: ' + JSON.stringify(testResult, null, 2) + '</div>';
+                } catch (error) {
+                    html += '<div class="status error">❌ Aviation weather API call failed: ' + error.message + '</div>';
+                }
+            } else {
+                html += '<div class="status error">❌ Cannot test API - service not loaded</div>';
+            }
+
+            // Test 4: Check if old marine service still exists
+            html += '<h2>Test 4: Old Marine Service Check</h2>';
+            if (window.WeatherAPIService) {
+                html += '<div class="status error">⚠️ Old WeatherAPIService still exists - this might cause conflicts</div>';
+            } else {
+                html += '<div class="status success">✅ Old marine weather service properly removed</div>';
+            }
+
+            // Test 5: Direct API test
+            html += '<h2>Test 5: Direct Open-Meteo API Test</h2>';
+            try {
+                const directResponse = await fetch('https://api.open-meteo.com/v1/forecast?latitude=22.3080&longitude=113.9185&current=temperature_2m,wind_speed_10m&forecast_days=1');
+                if (directResponse.ok) {
+                    const data = await directResponse.json();
+                    html += '<div class="status success">✅ Direct Open-Meteo API call successful</div>';
+                    html += '<div class="status info">📊 Direct API Response: ' + JSON.stringify(data, null, 2) + '</div>';
+                } else {
+                    html += '<div class="status error">❌ Direct API call failed: ' + directResponse.status + '</div>';
+                }
+            } catch (error) {
+                html += '<div class="status error">❌ Direct API call error: ' + error.message + '</div>';
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+
+        // Load aviation weather service and run diagnostics
+        window.addEventListener('load', function() {
+            console.log('🔍 Debug page loaded, running diagnostics...');
+            
+            // Try to load aviation weather service
+            const script = document.createElement('script');
+            script.src = 'aviation-weather-service.js';
+            script.onload = function() {
+                console.log('✅ Aviation weather service script loaded');
+                setTimeout(runDiagnostics, 1000); // Wait 1 second for service to initialize
+            };
+            script.onerror = function() {
+                console.error('❌ Failed to load aviation weather service script');
+                runDiagnostics();
+            };
+            document.head.appendChild(script);
+        });
+    </script>
+</body>
+</html>

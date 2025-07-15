@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather API Test - Air Freight App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .test-result { transition: all 0.3s ease; }
+        .test-running { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">🌊 Weather API Test Suite</h1>
+                <p class="text-gray-600">Testing Open-Meteo Marine Weather API integration for the Air Freight Application</p>
+            </div>
+
+            <!-- Test Controls -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex gap-4 mb-4">
+                    <button onclick="runSingleTest()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition">
+                        🧪 Test API Connection
+                    </button>
+                    <button onclick="runRouteTest()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+                        🗺️ Test Route Analysis
+                    </button>
+                    <button onclick="runFullTest()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition">
+                        🚀 Run Full Test Suite
+                    </button>
+                    <button onclick="clearResults()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+                        🗑️ Clear Results
+                    </button>
+                </div>
+                <div class="text-sm text-gray-500">
+                    <p>✅ Tests will validate the Marine Weather API integration</p>
+                    <p>⚠️ If live API fails, fallback data will be used</p>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">📊 Test Results</h2>
+                <div id="testResults" class="space-y-4">
+                    <div class="text-gray-500 text-center py-8">
+                        Click a test button above to begin testing
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Weather API Service -->
+    <script src="env.js"></script>
+    <script src="weather-api-service.js"></script>
+
+    <script>
+        // Test Functions
+        async function runSingleTest() {
+            showTestRunning('API Connection Test');
+            try {
+                const result = await window.WeatherAPIService.testAPI();
+                displayTestResult('API Connection', result);
+            } catch (error) {
+                displayTestResult('API Connection', {
+                    success: false,
+                    message: `Test failed: ${error.message}`,
+                    error: error.message
+                });
+            }
+        }
+
+        async function runRouteTest() {
+            showTestRunning('Route Analysis Test');
+            try {
+                const result = await window.WeatherAPIService.testRouteAnalysis();
+                displayTestResult('Route Analysis', result);
+            } catch (error) {
+                displayTestResult('Route Analysis', {
+                    success: false,
+                    message: `Test failed: ${error.message}`,
+                    error: error.message
+                });
+            }
+        }
+
+        async function runFullTest() {
+            showTestRunning('Full Test Suite');
+            try {
+                const result = await window.WeatherAPIService.runFullTest();
+                displayFullTestResult(result);
+            } catch (error) {
+                displayTestResult('Full Test Suite', {
+                    success: false,
+                    message: `Test suite failed: ${error.message}`,
+                    error: error.message
+                });
+            }
+        }
+
+        function showTestRunning(testName) {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = `
+                <div class="test-running bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+                        <span class="text-blue-800 font-medium">Running ${testName}...</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayTestResult(testName, result) {
+            const resultsDiv = document.getElementById('testResults');
+            const successClass = result.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+            const iconClass = result.success ? 'text-green-600' : 'text-red-600';
+            const icon = result.success ? '✅' : '❌';
+            
+            resultsDiv.innerHTML = `
+                <div class="test-result ${successClass} border rounded-lg p-4">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">${icon}</span>
+                        <div class="flex-1">
+                            <h3 class="font-semibold ${iconClass} mb-2">${testName} Test</h3>
+                            <p class="text-gray-700 mb-2">${result.message}</p>
+                            ${result.sampleData ? `
+                                <div class="bg-gray-50 rounded p-3 mt-3">
+                                    <h4 class="font-medium text-gray-800 mb-2">Sample Data:</h4>
+                                    <pre class="text-sm text-gray-600 overflow-x-auto">${JSON.stringify(result.sampleData, null, 2)}</pre>
+                                </div>
+                            ` : ''}
+                            ${result.error ? `
+                                <div class="bg-red-100 rounded p-3 mt-3">
+                                    <h4 class="font-medium text-red-800 mb-2">Error Details:</h4>
+                                    <p class="text-sm text-red-600">${result.error}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayFullTestResult(result) {
+            const resultsDiv = document.getElementById('testResults');
+            const overallClass = result.overallSuccess ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200';
+            const overallIcon = result.overallSuccess ? '✅' : '⚠️';
+            
+            resultsDiv.innerHTML = `
+                <div class="test-result ${overallClass} border rounded-lg p-4">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">${overallIcon}</span>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800 mb-4">Full Test Suite Results</h3>
+                            
+                            <!-- API Test Result -->
+                            <div class="mb-4 p-3 bg-white rounded border">
+                                <h4 class="font-medium mb-2">
+                                    ${result.apiTest.success ? '✅' : '❌'} API Connection Test
+                                </h4>
+                                <p class="text-sm text-gray-600">${result.apiTest.message}</p>
+                                <p class="text-xs text-gray-500 mt-1">Data Source: ${result.apiTest.dataSource}</p>
+                            </div>
+                            
+                            <!-- Route Test Result -->
+                            <div class="mb-4 p-3 bg-white rounded border">
+                                <h4 class="font-medium mb-2">
+                                    ${result.routeTest.success ? '✅' : '❌'} Route Analysis Test
+                                </h4>
+                                <p class="text-sm text-gray-600">${result.routeTest.message}</p>
+                            </div>
+                            
+                            <!-- API Status -->
+                            <div class="mb-4 p-3 bg-white rounded border">
+                                <h4 class="font-medium mb-2">📊 API Status</h4>
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div>Provider: ${result.status.provider}</div>
+                                    <div>Status: ${result.status.status}</div>
+                                    <div>Requests: ${result.status.requestCount}/${result.status.maxRequests}</div>
+                                    <div>Cache Size: ${result.status.cacheSize}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-xs text-gray-500 mt-4">
+                                Test completed: ${new Date(result.timestamp).toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearResults() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = `
+                <div class="text-gray-500 text-center py-8">
+                    Click a test button above to begin testing
+                </div>
+            `;
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            console.log('🧪 Weather API Test Suite loaded');
+            console.log('🌊 Weather Service Status:', window.WeatherAPIService.getStatus());
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-gray-200">
+            <div class="p-4 border-b border-gray-200">
+                <h1 class="text-xl font-bold text-gray-900">🛡️ Test App</h1>
+            </div>
+            
+            <nav class="mt-4">
+                <a href="#" onclick="showPage('aviation-weather'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    📦 Order Tracking
+                </a>
+                <a href="#" onclick="showPage('route-analysis'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    📈 Customer Notifications
+                </a>
+                <a href="#" onclick="showPage('sea-freight'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    🚢 Sea Freight Intelligence
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <!-- Order Tracking Page -->
+            <div id="aviation-weather" class="page active">
+                <h2 class="text-2xl font-bold mb-6">📦 Order Tracking</h2>
+                <p>This is the order tracking page content.</p>
+            </div>
+
+            <!-- Customer Notifications Page -->
+            <div id="route-analysis" class="page">
+                <h2 class="text-2xl font-bold mb-6">📈 Customer Notifications</h2>
+                <p>This is the customer notifications page content.</p>
+            </div>
+
+            <!-- Sea Freight Page -->
+            <div id="sea-freight" class="page">
+                <h2 class="text-2xl font-bold mb-6">🚢 Sea Freight Intelligence</h2>
+                <p>This is the sea freight page content.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Page navigation
+        function showPage(pageId) {
+            console.log('Switching to page:', pageId);
+            
+            try {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                    console.log('Hiding page:', page.id);
+                });
+                
+                // Show selected page
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    console.log('Showing page:', pageId);
+                } else {
+                    console.error('Page not found:', pageId);
+                }
+                
+                // Update navigation active state
+                document.querySelectorAll('nav a').forEach(link => {
+                    link.classList.remove('bg-blue-100', 'text-blue-700');
+                    link.classList.add('text-gray-700');
+                });
+                
+                // Highlight active navigation item
+                const activeLink = document.querySelector(`nav a[onclick*="showPage('${pageId}')"]`);
+                if (activeLink) {
+                    activeLink.classList.remove('text-gray-700');
+                    activeLink.classList.add('bg-blue-100', 'text-blue-700');
+                }
+            } catch (error) {
+                console.error('Error in showPage:', error);
+            }
+        }
+        
+        // Make showPage globally available
+        window.showPage = showPage;
+
+        // Initialize page on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            
+            // Show default page
+            setTimeout(() => {
+                showPage('aviation-weather');
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nerva Supply Chain Intelligence - Weather-Driven Shipment Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-gray-200">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-xl font-bold text-gray-900">🛡️ Nerva E-Commerce Shield</h1>
+                    <button onclick="alert('User menu clicked')" class="text-gray-500 hover:text-gray-700">
+                        👤
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Ready</p>
+            </div>
+            
+            <nav class="mt-4">
+                <a href="#" onclick="showPage('aviation-weather'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    📦 Order Tracking
+                </a>
+                <a href="#" onclick="showPage('route-analysis'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    📈 Customer Notifications
+                </a>
+                <a href="#" onclick="showPage('flight-tracking'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    📧 Auto Alerts
+                </a>
+                <a href="#" onclick="showPage('alert-history'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    📊 Alert History
+                </a>
+                <a href="#" onclick="showPage('analytics-dashboard'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    📈 ROI Analytics
+                </a>
+                <a href="#" onclick="showPage('sea-freight'); return false;" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    🚢 Sea Freight Intelligence
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <!-- Order Tracking Page -->
+            <div id="aviation-weather" class="page active">
+                <h2 class="text-2xl font-bold mb-6">📦 Order Tracking</h2>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p>Order tracking functionality works!</p>
+                    <button onclick="alert('Button clicked')" class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4">
+                        Test Button
+                    </button>
+                </div>
+            </div>
+
+            <!-- Customer Notifications Page -->
+            <div id="route-analysis" class="page">
+                <h2 class="text-2xl font-bold mb-6">📈 Customer Notifications</h2>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p>Customer notifications functionality works!</p>
+                </div>
+            </div>
+
+            <!-- Auto Alerts Page -->
+            <div id="flight-tracking" class="page">
+                <h2 class="text-2xl font-bold mb-6">📧 Auto Alerts</h2>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p>Auto alerts functionality works!</p>
+                </div>
+            </div>
+
+            <!-- Alert History Page -->
+            <div id="alert-history" class="page">
+                <h2 class="text-2xl font-bold mb-6">📊 Alert History</h2>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p>Alert history functionality works!</p>
+                </div>
+            </div>
+
+            <!-- ROI Analytics Page -->
+            <div id="analytics-dashboard" class="page">
+                <h2 class="text-2xl font-bold mb-6">📈 ROI Analytics</h2>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p>ROI analytics functionality works!</p>
+                </div>
+            </div>
+
+            <!-- Sea Freight Page -->
+            <div id="sea-freight" class="page">
+                <h2 class="text-2xl font-bold mb-6">🚢 Sea Freight Intelligence</h2>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p>Sea freight intelligence functionality works!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        console.log('Script starting...');
+        
+        // Page navigation
+        function showPage(pageId) {
+            console.log('Switching to page:', pageId);
+            
+            try {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Show selected page
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    console.log('Page shown:', pageId);
+                } else {
+                    console.error('Page not found:', pageId);
+                }
+                
+                // Update navigation active state
+                document.querySelectorAll('nav a').forEach(link => {
+                    link.classList.remove('bg-blue-100', 'text-blue-700');
+                    link.classList.add('text-gray-700');
+                });
+                
+                // Highlight active navigation item
+                const activeLink = document.querySelector(`nav a[onclick*="showPage('${pageId}')"]`);
+                if (activeLink) {
+                    activeLink.classList.remove('text-gray-700');
+                    activeLink.classList.add('bg-blue-100', 'text-blue-700');
+                }
+            } catch (error) {
+                console.error('Error in showPage:', error);
+            }
+        }
+        
+        // Make showPage globally available
+        window.showPage = showPage;
+
+        // Initialize page on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            showPage('aviation-weather');
+        });
+        
+        console.log('Script loaded successfully');
+    </script>
+</body>
+</html>

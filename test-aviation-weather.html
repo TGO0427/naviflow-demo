@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviation Weather Test - Air Freight App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .test-result { transition: all 0.3s ease; }
+        .test-running { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">✈️ Aviation Weather Test Suite</h1>
+                <p class="text-gray-600">Testing Open-Meteo Weather API integration for Air Freight Operations</p>
+            </div>
+
+            <!-- Test Controls -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <button onclick="testSingleAirport()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition text-sm">
+                        ✈️ Test Airport Weather
+                    </button>
+                    <button onclick="testRouteWeather()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition text-sm">
+                        🛩️ Test Route Analysis
+                    </button>
+                    <button onclick="testMultipleAirports()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition text-sm">
+                        🌐 Test Multiple Airports
+                    </button>
+                    <button onclick="clearResults()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition text-sm">
+                        🗑️ Clear Results
+                    </button>
+                </div>
+                
+                <!-- Airport Selection -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Test Airport</label>
+                        <select id="airportSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="HKG">HKG - Hong Kong International</option>
+                            <option value="SIN">SIN - Singapore Changi</option>
+                            <option value="FRA">FRA - Frankfurt Airport</option>
+                            <option value="LAX">LAX - Los Angeles International</option>
+                            <option value="DXB">DXB - Dubai International</option>
+                            <option value="NRT">NRT - Tokyo Narita</option>
+                            <option value="CDG">CDG - Paris Charles de Gaulle</option>
+                            <option value="ANC">ANC - Anchorage International</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Origin Airport</label>
+                        <select id="originSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="HKG">HKG - Hong Kong</option>
+                            <option value="SIN">SIN - Singapore</option>
+                            <option value="FRA">FRA - Frankfurt</option>
+                            <option value="LAX">LAX - Los Angeles</option>
+                            <option value="DXB">DXB - Dubai</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Destination Airport</label>
+                        <select id="destinationSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="NRT">NRT - Tokyo Narita</option>
+                            <option value="CDG">CDG - Paris CDG</option>
+                            <option value="ANC">ANC - Anchorage</option>
+                            <option value="MIA">MIA - Miami</option>
+                            <option value="SYD">SYD - Sydney</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-500">
+                    <p>✅ Tests validate aviation weather data for air freight operations</p>
+                    <p>📊 Includes flight impact analysis and cargo handling assessments</p>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">📊 Test Results</h2>
+                <div id="testResults" class="space-y-4">
+                    <div class="text-gray-500 text-center py-8">
+                        Select an airport and click a test button to begin
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Aviation Weather Service -->
+    <script src="env.js"></script>
+    <script src="aviation-weather-service.js"></script>
+
+    <script>
+        // Test Functions
+        async function testSingleAirport() {
+            const airportCode = document.getElementById('airportSelect').value;
+            showTestRunning(`Airport Weather Test - ${airportCode}`);
+            
+            try {
+                const result = await window.AviationWeatherService.getAirportWeather(airportCode);
+                displayAirportWeatherResult(result);
+            } catch (error) {
+                displayError('Airport Weather Test', error.message);
+            }
+        }
+
+        async function testRouteWeather() {
+            const origin = document.getElementById('originSelect').value;
+            const destination = document.getElementById('destinationSelect').value;
+            showTestRunning(`Route Weather Analysis - ${origin} → ${destination}`);
+            
+            try {
+                const result = await window.AviationWeatherService.getRouteWeather(origin, destination);
+                displayRouteWeatherResult(result);
+            } catch (error) {
+                displayError('Route Weather Test', error.message);
+            }
+        }
+
+        async function testMultipleAirports() {
+            showTestRunning('Multiple Airports Weather Test');
+            
+            const airports = ['HKG', 'SIN', 'FRA', 'LAX', 'DXB'];
+            const results = [];
+            
+            try {
+                for (const airport of airports) {
+                    const result = await window.AviationWeatherService.getAirportWeather(airport);
+                    results.push(result);
+                }
+                displayMultipleAirportsResult(results);
+            } catch (error) {
+                displayError('Multiple Airports Test', error.message);
+            }
+        }
+
+        function showTestRunning(testName) {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = `
+                <div class="test-running bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+                        <span class="text-blue-800 font-medium">Running ${testName}...</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayAirportWeatherResult(result) {
+            const resultsDiv = document.getElementById('testResults');
+            const statusClass = result.isLive ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200';
+            const statusIcon = result.isLive ? '✅' : '⚠️';
+            
+            resultsDiv.innerHTML = `
+                <div class="test-result ${statusClass} border rounded-lg p-6">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">${statusIcon}</span>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800 mb-4">
+                                Aviation Weather - ${result.airport} (${result.airportName})
+                            </h3>
+                            
+                            <!-- Current Conditions -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-white rounded-lg p-4 border">
+                                    <h4 class="font-medium text-gray-700 mb-2">🌡️ Temperature</h4>
+                                    <p class="text-2xl font-bold text-blue-600">${result.current.temperature}°C</p>
+                                    <p class="text-sm text-gray-500">Humidity: ${result.current.humidity}%</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border">
+                                    <h4 class="font-medium text-gray-700 mb-2">💨 Wind</h4>
+                                    <p class="text-2xl font-bold text-green-600">${result.current.windSpeed} km/h</p>
+                                    <p class="text-sm text-gray-500">Gusts: ${result.current.windGusts} km/h</p>
+                                    <p class="text-sm text-gray-500">Direction: ${result.current.windDirection}°</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border">
+                                    <h4 class="font-medium text-gray-700 mb-2">👁️ Visibility</h4>
+                                    <p class="text-2xl font-bold text-purple-600">${result.current.visibility} km</p>
+                                    <p class="text-sm text-gray-500">Cloud Cover: ${result.current.cloudCover}%</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Flight Conditions -->
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <h4 class="font-medium text-gray-800 mb-3">✈️ Flight Conditions</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Condition Severity</p>
+                                        <p class="font-semibold ${getSeverityColor(result.conditions.severity)}">${result.conditions.severity.toUpperCase()}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Operational Status</p>
+                                        <p class="font-semibold text-gray-800">${result.conditions.operationalStatus}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Wind Condition</p>
+                                        <p class="font-semibold text-gray-800">${result.conditions.windCondition}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Visibility</p>
+                                        <p class="font-semibold text-gray-800">${result.conditions.visibilityCondition}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <p class="text-sm text-gray-600 mb-1">Description</p>
+                                    <p class="text-gray-800">${result.conditions.description}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Flight Impact -->
+                            <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                                <h4 class="font-medium text-blue-800 mb-3">🛩️ Flight Impact Analysis</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-blue-600">Impact Level</p>
+                                        <p class="font-semibold text-blue-800">${result.flightImpact.impactLevel.toUpperCase()}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-blue-600">Delay Probability</p>
+                                        <p class="font-semibold text-blue-800">${result.flightImpact.delayProbability.toUpperCase()}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-blue-600">Cargo Handling</p>
+                                        <p class="font-semibold text-blue-800">${result.flightImpact.cargoHandling}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-blue-600">Fuel Requirements</p>
+                                        <p class="font-semibold text-blue-800">${result.flightImpact.fuelRequirements}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Data Source -->
+                            <div class="text-xs text-gray-500 mt-4">
+                                Data Source: ${result.dataSource} | Last Updated: ${new Date(result.timestamp).toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayRouteWeatherResult(result) {
+            const resultsDiv = document.getElementById('testResults');
+            const statusClass = result.isLive ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200';
+            const statusIcon = result.isLive ? '✅' : '⚠️';
+            
+            resultsDiv.innerHTML = `
+                <div class="test-result ${statusClass} border rounded-lg p-6">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">${statusIcon}</span>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800 mb-4">
+                                Route Weather Analysis - ${result.route}
+                            </h3>
+                            
+                            <!-- Route Analysis -->
+                            <div class="bg-white rounded-lg p-4 border mb-4">
+                                <h4 class="font-medium text-gray-700 mb-3">🗺️ Route Overview</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Overall Risk</p>
+                                        <p class="font-semibold ${getRiskColor(result.analysis.overallRisk)}">${result.analysis.overallRisk.toUpperCase()}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Departure Conditions</p>
+                                        <p class="font-semibold text-gray-800">${result.analysis.departureConditions}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Arrival Conditions</p>
+                                        <p class="font-semibold text-gray-800">${result.analysis.arrivalConditions}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <p class="text-sm text-gray-600 mb-2">Recommendations</p>
+                                    <ul class="list-disc list-inside text-sm text-gray-700">
+                                        ${result.analysis.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Origin & Destination Comparison -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-blue-50 rounded-lg p-4">
+                                    <h4 class="font-medium text-blue-800 mb-3">🛫 ${result.origin.airport} - ${result.origin.airportName}</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Temperature:</span>
+                                            <span class="font-semibold">${result.origin.current.temperature}°C</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Wind:</span>
+                                            <span class="font-semibold">${result.origin.current.windSpeed} km/h</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Visibility:</span>
+                                            <span class="font-semibold">${result.origin.current.visibility} km</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Condition:</span>
+                                            <span class="font-semibold ${getSeverityColor(result.origin.conditions.severity)}">${result.origin.conditions.severity}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-green-50 rounded-lg p-4">
+                                    <h4 class="font-medium text-green-800 mb-3">🛬 ${result.destination.airport} - ${result.destination.airportName}</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Temperature:</span>
+                                            <span class="font-semibold">${result.destination.current.temperature}°C</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Wind:</span>
+                                            <span class="font-semibold">${result.destination.current.windSpeed} km/h</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Visibility:</span>
+                                            <span class="font-semibold">${result.destination.current.visibility} km</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Condition:</span>
+                                            <span class="font-semibold ${getSeverityColor(result.destination.conditions.severity)}">${result.destination.conditions.severity}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-xs text-gray-500 mt-4">
+                                Analysis completed: ${new Date(result.timestamp).toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayMultipleAirportsResult(results) {
+            const resultsDiv = document.getElementById('testResults');
+            const liveCount = results.filter(r => r.isLive).length;
+            
+            resultsDiv.innerHTML = `
+                <div class="test-result bg-purple-50 border border-purple-200 rounded-lg p-6">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">🌐</span>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-purple-800 mb-4">
+                                Multiple Airports Weather Summary (${liveCount}/${results.length} Live)
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                ${results.map(result => `
+                                    <div class="bg-white rounded-lg p-4 border">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h4 class="font-medium text-gray-800">${result.airport}</h4>
+                                            <span class="text-xs ${result.isLive ? 'text-green-600' : 'text-yellow-600'}">${result.isLive ? 'LIVE' : 'ESTIMATE'}</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">${result.airportName}</p>
+                                        <div class="space-y-1 text-sm">
+                                            <div class="flex justify-between">
+                                                <span>Temp:</span>
+                                                <span class="font-semibold">${result.current.temperature}°C</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>Wind:</span>
+                                                <span class="font-semibold">${result.current.windSpeed} km/h</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>Condition:</span>
+                                                <span class="font-semibold ${getSeverityColor(result.conditions.severity)}">${result.conditions.severity}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayError(testName, errorMessage) {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = `
+                <div class="test-result bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">❌</span>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-red-800 mb-2">${testName} Failed</h3>
+                            <p class="text-red-700">${errorMessage}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSeverityColor(severity) {
+            switch (severity) {
+                case 'good': return 'text-green-600';
+                case 'moderate': return 'text-yellow-600';
+                case 'poor': return 'text-red-600';
+                default: return 'text-gray-600';
+            }
+        }
+
+        function getRiskColor(risk) {
+            switch (risk.toLowerCase()) {
+                case 'low': return 'text-green-600';
+                case 'moderate': return 'text-yellow-600';
+                case 'high': return 'text-red-600';
+                default: return 'text-gray-600';
+            }
+        }
+
+        function clearResults() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = `
+                <div class="text-gray-500 text-center py-8">
+                    Select an airport and click a test button to begin
+                </div>
+            `;
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            console.log('✈️ Aviation Weather Test Suite loaded');
+            if (window.AviationWeatherService) {
+                console.log('✅ Aviation Weather Service Status:', window.AviationWeatherService.getStatus());
+            } else {
+                console.error('❌ Aviation Weather Service not found');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+{
+  "timestamp": "2025-07-10T07:29:44.317Z",
+  "summary": {
+    "totalTests": 6,
+    "passed": 2,
+    "failed": 4,
+    "securityScore": 33
+  },
+  "testResults": [
+    {
+      "category": "Environment Configuration",
+      "passed": true,
+      "details": [
+        {
+          "name": "Environment File Configuration",
+          "passed": true,
+          "details": {
+            "envExists": false,
+            "envExampleExists": true,
+            "recommendation": "Create .env file with your API keys"
+          }
+        },
+        {
+          "name": "Gitignore Configuration",
+          "passed": true,
+          "details": {
+            "hasEnvIgnore": true,
+            "hasNodeModules": true
+          }
+        },
+        {
+          "name": "Secret Exposure Check",
+          "passed": true,
+          "details": {
+            "exposedSecrets": false,
+            "recommendation": "No secrets detected"
+          }
+        },
+        {
+          "name": "Debug Mode Check",
+          "passed": true,
+          "details": {
+            "debugEnabled": true,
+            "recommendation": "Disable debug mode in production"
+          }
+        }
+      ]
+    },
+    {
+      "category": "File Permissions",
+      "passed": false,
+      "details": [
+        {
+          "file": ".env",
+          "passed": true,
+          "error": "File not found"
+        },
+        {
+          "file": ".env.example",
+          "passed": true,
+          "worldReadable": true,
+          "mode": "100777"
+        },
+        {
+          "file": "env.js",
+          "passed": false,
+          "worldReadable": true,
+          "mode": "100777"
+        },
+        {
+          "file": "security-config.js",
+          "passed": false,
+          "worldReadable": true,
+          "mode": "100777"
+        }
+      ]
+    },
+    {
+      "category": "API Key Exposure",
+      "passed": false,
+      "details": [
+        {
+          "file": "env.js",
+          "passed": true,
+          "hasRealKeys": false,
+          "hasPlaceholders": true,
+          "recommendation": "OK"
+        },
+        {
+          "file": "air-freight-app.html",
+          "passed": false,
+          "hasRealKeys": true,
+          "hasPlaceholders": true,
+          "recommendation": "Remove real API keys from this file"
+        },
+        {
+          "file": "package.json",
+          "passed": true,
+          "hasRealKeys": false,
+          "hasPlaceholders": false,
+          "recommendation": "OK"
+        },
+        {
+          "file": "weather-api-service.js",
+          "passed": true,
+          "hasRealKeys": false,
+          "hasPlaceholders": false,
+          "recommendation": "OK"
+        },
+        {
+          "file": "whatsapp-config.js",
+          "passed": true,
+          "hasRealKeys": false,
+          "hasPlaceholders": true,
+          "recommendation": "OK"
+        }
+      ]
+    },
+    {
+      "category": "Input Validation",
+      "passed": true,
+      "details": [
+        {
+          "name": "Port Name Validation",
+          "passed": true,
+          "details": {
+            "validPorts": 3,
+            "invalidPorts": 3,
+            "recommendation": "Implement input sanitization for port names"
+          }
+        },
+        {
+          "name": "Coordinate Validation",
+          "passed": true,
+          "details": {
+            "recommendation": "Validate lat/lon ranges and numeric format"
+          }
+        },
+        {
+          "name": "API Key Validation",
+          "passed": true,
+          "details": {
+            "recommendation": "Validate API key format and length"
+          }
+        },
+        {
+          "name": "SQL Injection Protection",
+          "passed": true,
+          "details": {
+            "recommendation": "No SQL database detected - using APIs only"
+          }
+        },
+        {
+          "name": "XSS Protection",
+          "passed": true,
+          "details": {
+            "recommendation": "Implement content sanitization for user inputs"
+          }
+        }
+      ]
+    },
+    {
+      "category": "Dependency Vulnerabilities",
+      "passed": false,
+      "details": {
+        "passed": false,
+        "error": "Command failed: npm audit --json\n",
+        "recommendation": "Run npm audit manually to check for vulnerabilities"
+      }
+    },
+    {
+      "category": "Security Headers",
+      "passed": false,
+      "details": [
+        {
+          "name": "CSP Implementation",
+          "passed": false,
+          "details": {
+            "cspImplemented": false,
+            "recommendation": "Implement Content Security Policy"
+          }
+        },
+        {
+          "name": "HTTPS Enforcement",
+          "passed": true,
+          "details": {
+            "recommendation": "Enforce HTTPS in production environment"
+          }
+        },
+        {
+          "name": "Security Meta Tags",
+          "passed": true,
+          "details": {
+            "hasViewport": true,
+            "hasCharset": true
+          }
+        }
+      ]
+    }
+  ],
+  "securityIssues": [
+    {
+      "severity": "HIGH",
+      "category": "API Key Exposure",
+      "issue": "Real API keys found in source code",
+      "recommendation": "Move API keys to environment variables"
+    }
+  ],
+  "recommendations": [
+    "Review and implement production security checklist",
+    "Set up regular security audits",
+    "Implement proper authentication system",
+    "Use HTTPS in production",
+    "Regular dependency updates and vulnerability scanning"
+  ]
+}
