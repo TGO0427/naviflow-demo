@@ -2642,6 +2642,88 @@
     </div>
 
     <script>
+        // Validation functions (moved to top for HTML inline event handlers)
+        function validateShopifyUrl(input) {
+            const value = input.value.trim();
+            if (value) {
+                if (!value.includes('.myshopify.com')) {
+                    input.value = value + '.myshopify.com';
+                    input.style.borderColor = '#10B981';
+                    createNotification('✅ URL Auto-Corrected', `Updated to: ${input.value}\n\nShopify URLs must end with .myshopify.com`, 'success');
+                } else {
+                    input.style.borderColor = '#EF4444';
+                    createNotification('❌ Invalid URL Format', 'Shopify URLs should be:\nyour-store.myshopify.com\n\nPlease check and try again.', 'error');
+                }
+            } else if (value.includes('.myshopify.com')) {
+                input.style.borderColor = '#10B981';
+            }
+        }
+        
+        function validateShopifyApiKey(input) {
+            const value = input.value.trim();
+            if (value) {
+                if (value.startsWith('shpat_') && value.length >= 32) {
+                    input.style.borderColor = '#10B981';
+                    createNotification('✅ Valid API Key Format', 'Shopify API key format verified!\n\nClick "Test Connection" to validate credentials.', 'success');
+                } else {
+                    input.style.borderColor = '#EF4444';
+                    createNotification('❌ Invalid API Key Format', 'Shopify API keys should:\n• Start with "shpat_"\n• Be at least 32 characters long\n\nPlease check your Shopify admin.', 'error');
+                }
+            }
+        }
+        
+        function validateWooUrl(input) {
+            const value = input.value.trim();
+            if (value) {
+                if (value.match(/^https?:\/\/.+/)) {
+                    input.style.borderColor = '#10B981';
+                    createNotification('✅ Valid Website URL', 'Website URL format verified!\n\nMake sure WooCommerce is installed and API is enabled.', 'success');
+                } else {
+                    input.style.borderColor = '#EF4444';
+                    createNotification('❌ Invalid URL Format', 'Website URLs should include:\n• https:// or http://\n• Your domain name\n\nExample: https://yourstore.com', 'error');
+                }
+            }
+        }
+        
+        function validateWooSecret(input) {
+            const value = input.value.trim();
+            if (value) {
+                if (value.startsWith('cs_') && value.length >= 40) {
+                    input.style.borderColor = '#10B981';
+                    createNotification('✅ Valid Consumer Secret', 'WooCommerce consumer secret format verified!\n\nClick "Test Connection" to validate credentials.', 'success');
+                } else {
+                    input.style.borderColor = '#EF4444';
+                    createNotification('❌ Invalid Consumer Secret', 'WooCommerce consumer secrets should:\n• Start with "cs_"\n• Be at least 40 characters long\n\nGenerate from WooCommerce > Settings > Advanced > REST API', 'error');
+                }
+            }
+        }
+        
+        function validateAmazonSellerId(input) {
+            const value = input.value.trim();
+            if (value) {
+                if (value.match(/^A[A-Z0-9]{13}$/)) {
+                    input.style.borderColor = '#10B981';
+                    createNotification('✅ Valid Seller ID', 'Amazon Seller ID format verified!\n\nClick "Test Connection" to validate credentials.', 'success');
+                } else {
+                    input.style.borderColor = '#EF4444';
+                    createNotification('❌ Invalid Seller ID Format', 'Amazon Seller IDs should:\n• Start with "A"\n• Be exactly 14 characters\n• Contain only letters and numbers\n\nFind in Seller Central > Settings > Account Info', 'error');
+                }
+            }
+        }
+        
+        function validateAmazonToken(input) {
+            const value = input.value.trim();
+            if (value) {
+                if (value.startsWith('amzn.mws.') && value.length >= 50) {
+                    input.style.borderColor = '#10B981';
+                    createNotification('✅ Valid MWS Token', 'Amazon MWS Auth Token format verified!\n\nClick "Test Connection" to validate credentials.', 'success');
+                } else {
+                    input.style.borderColor = '#EF4444';
+                    createNotification('❌ Invalid MWS Token', 'Amazon MWS Auth Tokens should:\n• Start with "amzn.mws."\n• Be at least 50 characters long\n\nGenerate from Seller Central > User Permissions', 'error');
+                }
+            }
+        }
+        
         function showPage(pageId) {
             console.log('Switching to:', pageId);
             document.querySelectorAll('.page').forEach(page => {
@@ -3557,70 +3639,6 @@ ORD-2024-005,Chris Brown,chris.b@email.com,2024-01-17,2024-01-18,999888777666,Fe
             }
         }
 
-        function validateShopifyApiKey(input) {
-            const value = input.value.trim();
-            if (value) {
-                if (value.startsWith('shpat_') && value.length >= 32) {
-                    input.style.borderColor = '#10B981';
-                    createNotification('✅ Valid API Key Format', 'Shopify API key format verified!\n\nClick "Test Connection" to validate credentials.', 'success');
-                } else {
-                    input.style.borderColor = '#EF4444';
-                    createNotification('❌ Invalid API Key Format', 'Shopify API keys should:\n• Start with "shpat_"\n• Be at least 32 characters long\n\nPlease check your Shopify admin.', 'error');
-                }
-            }
-        }
-
-        function validateWooUrl(input) {
-            const value = input.value.trim();
-            if (value) {
-                if (value.match(/^https?:\/\/.+/)) {
-                    input.style.borderColor = '#10B981';
-                    createNotification('✅ Valid Website URL', 'Website URL format verified!\n\nMake sure WooCommerce is installed and API is enabled.', 'success');
-                } else {
-                    input.style.borderColor = '#EF4444';
-                    createNotification('❌ Invalid URL Format', 'Website URLs should include:\n• https:// or http://\n• Your domain name\n\nExample: https://yourstore.com', 'error');
-                }
-            }
-        }
-
-        function validateWooSecret(input) {
-            const value = input.value.trim();
-            if (value) {
-                if (value.startsWith('cs_') && value.length >= 40) {
-                    input.style.borderColor = '#10B981';
-                    createNotification('✅ Valid Consumer Secret', 'WooCommerce consumer secret format verified!\n\nClick "Test Connection" to validate credentials.', 'success');
-                } else {
-                    input.style.borderColor = '#EF4444';
-                    createNotification('❌ Invalid Consumer Secret', 'WooCommerce consumer secrets should:\n• Start with "cs_"\n• Be at least 40 characters long\n\nGenerate from WooCommerce > Settings > Advanced > REST API', 'error');
-                }
-            }
-        }
-
-        function validateAmazonSellerId(input) {
-            const value = input.value.trim();
-            if (value) {
-                if (value.match(/^A[A-Z0-9]{13}$/)) {
-                    input.style.borderColor = '#10B981';
-                    createNotification('✅ Valid Seller ID', 'Amazon Seller ID format verified!\n\nClick "Test Connection" to validate credentials.', 'success');
-                } else {
-                    input.style.borderColor = '#EF4444';
-                    createNotification('❌ Invalid Seller ID Format', 'Amazon Seller IDs should:\n• Start with "A"\n• Be exactly 14 characters\n• Contain only letters and numbers\n\nFind in Seller Central > Settings > Account Info', 'error');
-                }
-            }
-        }
-
-        function validateAmazonToken(input) {
-            const value = input.value.trim();
-            if (value) {
-                if (value.startsWith('amzn.mws.') && value.length >= 50) {
-                    input.style.borderColor = '#10B981';
-                    createNotification('✅ Valid MWS Token', 'Amazon MWS Auth Token format verified!\n\nClick "Test Connection" to validate credentials.', 'success');
-                } else {
-                    input.style.borderColor = '#EF4444';
-                    createNotification('❌ Invalid MWS Token', 'Amazon MWS Auth Tokens should:\n• Start with "amzn.mws."\n• Be at least 50 characters long\n\nGenerate from Seller Central > User Permissions', 'error');
-                }
-            }
-        }
 
         // Tutorial Functions
         function showShopifyTutorial() {
