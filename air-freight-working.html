@@ -4015,8 +4015,8 @@ DEVELOPER INFORMATION:
             getWebSocketUrl() {
                 // Check if we're on GitHub Pages
                 if (window.location.href.includes('github.io') || window.location.href.includes('github.com')) {
-                    // Try cloud deployment first - you can update this URL when deployed
-                    return 'wss://naviflow-chat-server.railway.app'; // Example cloud URL
+                    // Connect to Railway cloud deployment
+                    return 'wss://naviflow-demo-production.up.railway.app';
                 }
                 
                 // For local development, try different ports
