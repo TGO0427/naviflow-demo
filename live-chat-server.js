@@ -367,7 +367,10 @@ let users = new Map();
 
 // Initialize WebSocket connection
 function initializeWebSocket() {
-    ws = new WebSocket('ws://localhost:3001');
+    // Use current domain for WebSocket connection
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = protocol + '//' + window.location.host;
+    ws = new WebSocket(wsUrl);
     
     ws.onopen = function() {
         console.log('🔗 Connected to chat server');
