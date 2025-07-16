@@ -4150,7 +4150,7 @@ DEVELOPER INFORMATION:
                         </div>
                         
                         <!-- Chat Window -->
-                        <div id="chatWindow" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-lg shadow-2xl border border-gray-200">
+                        <div id="liveChatWindow" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-lg shadow-2xl border border-gray-200">
                             <!-- Header -->
                             <div class="bg-green-600 text-white p-4 rounded-t-lg">
                                 <div class="flex items-center justify-between">
@@ -4245,7 +4245,7 @@ DEVELOPER INFORMATION:
             }
             
             toggleChat() {
-                const chatWindow = document.getElementById('chatWindow');
+                const chatWindow = document.getElementById('liveChatWindow');
                 const chatToggle = document.getElementById('chatToggle');
                 
                 if (chatWindow.classList.contains('hidden')) {
@@ -4259,7 +4259,7 @@ DEVELOPER INFORMATION:
             }
             
             closeChat() {
-                document.getElementById('chatWindow').classList.add('hidden');
+                document.getElementById('liveChatWindow').classList.add('hidden');
                 const chatToggle = document.getElementById('chatToggle');
                 chatToggle.classList.add('bg-green-600');
                 chatToggle.classList.remove('bg-gray-600');
@@ -4412,14 +4412,14 @@ DEVELOPER INFORMATION:
                 
                 // Show welcome notification after 8 seconds
                 setTimeout(() => {
-                    if (!document.getElementById('chatWindow').classList.contains('hidden')) return;
+                    if (!document.getElementById('liveChatWindow').classList.contains('hidden')) return;
                     
                     createNotification('👋 Live Support Available!', 'Hi! I\'m Tino, founder of NaviFlow.\n\n💬 I\'m here to help with your demo\n🚀 Click the chat button for instant support\n⚡ Get answers to any questions!\n\nLet\'s make your integration seamless!', 'info');
                 }, 8000);
                 
                 // Auto-open chat after 15 seconds if user hasn't interacted
                 setTimeout(() => {
-                    if (!document.getElementById('chatWindow').classList.contains('hidden')) return;
+                    if (!document.getElementById('liveChatWindow').classList.contains('hidden')) return;
                     
                     this.showWelcomeMessage();
                 }, 15000);
@@ -4467,12 +4467,12 @@ DEVELOPER INFORMATION:
         function openLiveChat() {
             SoundManager.playClick();
             
-            if (!liveChatWidget) {
-                liveChatWidget = new LiveChatWidget();
+            if (!window.liveChatWidget) {
+                window.liveChatWidget = new LiveChatWidget();
             }
             
             // Show the chat widget
-            liveChatWidget.toggleChat();
+            window.liveChatWidget.toggleChat();
             
             createNotification('💬 Live Chat Opening', 'Connecting you to Tino for real-time support!\n\n🔴 This is a LIVE chat session\n💬 Type your questions directly\n⚡ Get instant help with your demo', 'success');
         }
@@ -6152,9 +6152,22 @@ ${customers.map(customer => `"${customer.name}","${customer.email}","${customer.
         // Add sound to chatbot
         function toggleChat() {
             SoundManager.playClick();
+            
+            // Try to use the LiveChatWidget if it exists
+            if (window.liveChatWidget) {
+                window.liveChatWidget.toggleChat();
+                return;
+            }
+            
+            // Fallback to basic chat toggle
             const chatWindow = document.getElementById('chatWindow');
             const chatButton = document.getElementById('chatButton');
             const chatIcon = document.getElementById('chatButtonIcon');
+            
+            if (!chatWindow || !chatButton || !chatIcon) {
+                console.log('Chat elements not found');
+                return;
+            }
             
             chatOpen = !chatOpen;
             
@@ -6360,8 +6373,8 @@ ${customers.map(customer => `"${customer.name}","${customer.email}","${customer.
             
             
             // Initialize live chat widget
-            if (!liveChatWidget) {
-                liveChatWidget = new LiveChatWidget();
+            if (!window.liveChatWidget) {
+                window.liveChatWidget = new LiveChatWidget();
             }
             
             // Initialize CSV upload functionality
