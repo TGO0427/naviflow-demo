@@ -4043,14 +4043,14 @@ DEVELOPER INFORMATION:
                             console.log('🔗 Connected to live chat server');
                             this.isConnected = true;
                             this.updateConnectionStatus(true);
-                        
-                        // Register with server
-                        this.ws.send(JSON.stringify({
-                            type: 'register',
-                            name: this.userInfo.name,
-                            email: this.userInfo.email
-                        }));
-                    };
+                            
+                            // Register with server
+                            this.ws.send(JSON.stringify({
+                                type: 'register',
+                                name: this.userInfo.name,
+                                email: this.userInfo.email
+                            }));
+                        };
                     
                     this.ws.onmessage = (event) => {
                         const data = JSON.parse(event.data);
@@ -4090,6 +4090,8 @@ DEVELOPER INFORMATION:
             handleMessage(data) {
                 switch(data.type) {
                     case 'registered':
+                        this.updateConnectionStatus(true);
+                        this.enableChatInput();
                         this.showMessage('system', 'Connected to NaviFlow support. How can I help you today?');
                         break;
                     case 'message':
@@ -4492,6 +4494,19 @@ DEVELOPER INFORMATION:
             isValidEmail(email) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 return emailRegex.test(email);
+            }
+            
+            enableChatInput() {
+                const inputElement = document.getElementById('chatInput');
+                const sendButton = document.getElementById('chatSend');
+                
+                if (inputElement) {
+                    inputElement.disabled = false;
+                    inputElement.placeholder = 'Type your message...';
+                }
+                if (sendButton) {
+                    sendButton.disabled = false;
+                }
             }
             
             startProactiveChat() {
