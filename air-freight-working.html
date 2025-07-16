@@ -4012,13 +4012,29 @@ DEVELOPER INFORMATION:
                 };
             }
             
+            getWebSocketUrl() {
+                // Check if we're on GitHub Pages
+                if (window.location.href.includes('github.io') || window.location.href.includes('github.com')) {
+                    // Try cloud deployment first - you can update this URL when deployed
+                    return 'wss://naviflow-chat-server.railway.app'; // Example cloud URL
+                }
+                
+                // For local development, try different ports
+                const ports = [3001, 3002, 8080];
+                return `ws://localhost:${ports[0]}`;
+            }
+            
             connectToServer() {
                 try {
+                    // Determine the appropriate WebSocket URL based on environment
+                    const wsUrl = this.getWebSocketUrl();
+                    console.log('🔗 Attempting to connect to:', wsUrl);
+                    
                     // Try to connect to chat server, gracefully handle failures
                     try {
-                        this.ws = new WebSocket('ws://localhost:3001');
+                        this.ws = new WebSocket(wsUrl);
                     } catch (error) {
-                        console.log('Chat server not available - demo mode');
+                        console.log('Chat server not available - enabling fallback mode');
                         this.ws = null;
                     }
                     
@@ -4137,7 +4153,7 @@ DEVELOPER INFORMATION:
                             </div>
                             
                             <!-- Input Area -->
-                            <div class="p-4 border-t border-gray-200 bg-white rounded-b-lg">
+                            <div id="liveInputArea" class="p-4 border-t border-gray-200 bg-white rounded-b-lg">
                                 <div class="flex items-center space-x-2">
                                     <input
                                         type="text"
@@ -4158,6 +4174,43 @@ DEVELOPER INFORMATION:
                                     Press Enter to send • Live support with Tino
                                 </div>
                             </div>
+                            
+                            <!-- Fallback Contact Form -->
+                            <div id="fallbackForm" class="hidden p-4 border-t border-gray-200 bg-white rounded-b-lg">
+                                <div class="space-y-3">
+                                    <div class="text-sm text-gray-600 mb-3">
+                                        <span class="font-semibold">Live chat unavailable</span><br>
+                                        Send me a message and I'll get back to you!
+                                    </div>
+                                    <input
+                                        type="text"
+                                        id="fallbackName"
+                                        placeholder="Your name"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"
+                                    >
+                                    <input
+                                        type="email"
+                                        id="fallbackEmail"
+                                        placeholder="Your email"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"
+                                    >
+                                    <textarea
+                                        id="fallbackMessage"
+                                        placeholder="Your message..."
+                                        rows="3"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"
+                                    ></textarea>
+                                    <button
+                                        id="fallbackSend"
+                                        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                    >
+                                        Send Message
+                                    </button>
+                                    <div class="text-xs text-gray-500 text-center">
+                                        Message will be sent to tino@naviflow.com
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -4165,6 +4218,7 @@ DEVELOPER INFORMATION:
                 document.body.insertAdjacentHTML('beforeend', widgetHTML);
                 this.widget = document.getElementById('liveChatWidget');
                 this.setupEventListeners();
+                this.setupFallbackForm();
             }
             
             setupEventListeners() {
@@ -4330,6 +4384,8 @@ DEVELOPER INFORMATION:
                 const statusElement = document.getElementById('connectionStatus');
                 const inputElement = document.getElementById('chatInput');
                 const sendButton = document.getElementById('chatSend');
+                const liveInputArea = document.getElementById('liveInputArea');
+                const fallbackForm = document.getElementById('fallbackForm');
                 
                 if (connected) {
                     statusElement.textContent = 'Online • Ready to help';
@@ -4337,12 +4393,29 @@ DEVELOPER INFORMATION:
                     inputElement.disabled = false;
                     sendButton.disabled = false;
                     inputElement.placeholder = 'Type your message...';
+                    
+                    // Show live chat, hide fallback form
+                    if (liveInputArea) liveInputArea.classList.remove('hidden');
+                    if (fallbackForm) fallbackForm.classList.add('hidden');
                 } else {
-                    statusElement.textContent = 'Reconnecting...';
-                    statusElement.className = 'text-xs text-yellow-200';
-                    inputElement.disabled = true;
-                    sendButton.disabled = true;
-                    inputElement.placeholder = 'Connecting...';
+                    // After attempting to connect, show fallback form if on GitHub Pages
+                    if (window.location.href.includes('github.io')) {
+                        statusElement.textContent = 'Offline • Use form below';
+                        statusElement.className = 'text-xs text-yellow-200';
+                        
+                        // Hide live chat, show fallback form
+                        if (liveInputArea) liveInputArea.classList.add('hidden');
+                        if (fallbackForm) fallbackForm.classList.remove('hidden');
+                        
+                        // Pre-fill user info if available
+                        this.prefillFallbackForm();
+                    } else {
+                        statusElement.textContent = 'Reconnecting...';
+                        statusElement.className = 'text-xs text-yellow-200';
+                        inputElement.disabled = true;
+                        sendButton.disabled = true;
+                        inputElement.placeholder = 'Connecting...';
+                    }
                 }
             }
             
@@ -4356,6 +4429,69 @@ DEVELOPER INFORMATION:
                 setTimeout(() => {
                     createNotification('💬 Demo Mode Chat', 'This is a demo environment - live chat is simulated.\n\n📧 Real support: support@naviflow.com\n📱 Phone: +1 (555) 123-NAVI\n🎯 For live chat, contact us about the full system!', 'info');
                 }, 2000);
+            }
+            
+            prefillFallbackForm() {
+                setTimeout(() => {
+                    const nameField = document.getElementById('fallbackName');
+                    const emailField = document.getElementById('fallbackEmail');
+                    
+                    if (nameField && this.userInfo.name !== 'Demo User') {
+                        nameField.value = this.userInfo.name;
+                    }
+                    if (emailField && this.userInfo.email !== 'demo@naviflow.com') {
+                        emailField.value = this.userInfo.email;
+                    }
+                }, 100);
+            }
+            
+            setupFallbackForm() {
+                const fallbackSendButton = document.getElementById('fallbackSend');
+                if (fallbackSendButton) {
+                    fallbackSendButton.addEventListener('click', () => {
+                        this.sendFallbackMessage();
+                    });
+                }
+            }
+            
+            sendFallbackMessage() {
+                const name = document.getElementById('fallbackName').value.trim();
+                const email = document.getElementById('fallbackEmail').value.trim();
+                const message = document.getElementById('fallbackMessage').value.trim();
+                
+                if (!name || !email || !message) {
+                    createNotification('⚠️ Missing Information', 'Please fill in all fields before sending.', 'warning');
+                    return;
+                }
+                
+                if (!this.isValidEmail(email)) {
+                    createNotification('⚠️ Invalid Email', 'Please enter a valid email address.', 'warning');
+                    return;
+                }
+                
+                // Create mailto link for fallback
+                const subject = encodeURIComponent('NaviFlow Demo - Contact Request');
+                const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}\n\n---\nSent from NaviFlow Demo\nUser Agent: ${navigator.userAgent}`);
+                const mailtoLink = `mailto:tino@naviflow.com?subject=${subject}&body=${body}`;
+                
+                // Try to open email client
+                try {
+                    window.location.href = mailtoLink;
+                    createNotification('✅ Email Client Opened', 'Your email client should open with the message pre-filled. Please send the email to complete your request.', 'success');
+                    
+                    // Clear form
+                    document.getElementById('fallbackName').value = '';
+                    document.getElementById('fallbackEmail').value = '';
+                    document.getElementById('fallbackMessage').value = '';
+                    
+                } catch (error) {
+                    createNotification('❌ Email Client Error', 'Unable to open email client. Please email tino@naviflow.com directly.', 'error');
+                }
+            }
+            
+            isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
             }
             
             startProactiveChat() {
