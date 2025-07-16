@@ -7,7 +7,7 @@ const path = require('path');
 
 class LiveChatServer {
     constructor() {
-        this.port = 3001;
+        this.port = process.env.PORT || 3001;
         this.clients = new Map();
         this.adminClients = new Set();
         this.chatHistory = [];
