@@ -4092,6 +4092,7 @@ DEVELOPER INFORMATION:
                     case 'registered':
                         this.updateConnectionStatus(true);
                         this.enableChatInput();
+                        this.clearConnectingMessage();
                         this.showMessage('system', 'Connected to NaviFlow support. How can I help you today?');
                         break;
                     case 'message':
@@ -4299,6 +4300,13 @@ DEVELOPER INFORMATION:
             
             showMessage(type, content, sender = null) {
                 const messagesContainer = document.getElementById('chatMessages');
+                
+                // Clear initial "Connecting..." message on first real message
+                const connectingMessage = messagesContainer.querySelector('.text-center .text-gray-500');
+                if (connectingMessage && connectingMessage.textContent.includes('Connecting to live support')) {
+                    connectingMessage.remove();
+                }
+                
                 const messageElement = document.createElement('div');
                 messageElement.className = 'message-bubble animate-fade-in';
                 
@@ -4506,6 +4514,14 @@ DEVELOPER INFORMATION:
                 }
                 if (sendButton) {
                     sendButton.disabled = false;
+                }
+            }
+            
+            clearConnectingMessage() {
+                const messagesContainer = document.getElementById('chatMessages');
+                const connectingDiv = messagesContainer.querySelector('.text-center');
+                if (connectingDiv && connectingDiv.textContent.includes('Connecting to live support')) {
+                    connectingDiv.remove();
                 }
             }
             
