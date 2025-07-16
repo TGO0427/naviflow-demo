@@ -4058,11 +4058,18 @@ DEVELOPER INFORMATION:
             
             connectToServer() {
                 try {
-                    this.ws = new WebSocket('ws://localhost:3001');
+                    // Try to connect to chat server, gracefully handle failures
+                    try {
+                        this.ws = new WebSocket('ws://localhost:3001');
+                    } catch (error) {
+                        console.log('Chat server not available - demo mode');
+                        this.ws = null;
+                    }
                     
-                    this.ws.onopen = () => {
-                        console.log('🔗 Connected to live chat server');
-                        this.isConnected = true;
+                    if (this.ws) {
+                        this.ws.onopen = () => {
+                            console.log('🔗 Connected to live chat server');
+                            this.isConnected = true;
                         this.updateConnectionStatus(true);
                         
                         // Register with server
@@ -4083,20 +4090,27 @@ DEVELOPER INFORMATION:
                         this.isConnected = false;
                         this.updateConnectionStatus(false);
                         
-                        // Attempt to reconnect after 5 seconds
-                        setTimeout(() => {
-                            this.connectToServer();
-                        }, 5000);
+                        // Only attempt reconnect if not on GitHub Pages
+                        if (!window.location.href.includes('github.io')) {
+                            setTimeout(() => {
+                                this.connectToServer();
+                            }, 5000);
+                        } else {
+                            this.showDemoModeMessage();
+                        }
                     };
                     
                     this.ws.onerror = (error) => {
-                        console.error('❌ WebSocket error:', error);
+                        console.log('Chat server offline - demo mode');
                         this.isConnected = false;
                         this.updateConnectionStatus(false);
+                        this.showDemoModeMessage();
                     };
                 } catch (error) {
-                    console.error('❌ Failed to connect to chat server:', error);
-                    this.showOfflineMessage();
+                    console.log('Chat server not available - demo mode');
+                    this.isConnected = false;
+                    this.updateConnectionStatus(false);
+                    this.showDemoModeMessage();
                 }
             }
             
@@ -4378,6 +4392,12 @@ DEVELOPER INFORMATION:
             showOfflineMessage() {
                 setTimeout(() => {
                     createNotification('❌ Chat Server Offline', 'Live chat is temporarily unavailable.\n\n📧 Email: support@naviflow.com\n📱 Phone: +1 (555) 123-NAVI\n\nWe\'ll be back online shortly!', 'error');
+                }, 2000);
+            }
+            
+            showDemoModeMessage() {
+                setTimeout(() => {
+                    createNotification('💬 Demo Mode Chat', 'This is a demo environment - live chat is simulated.\n\n📧 Real support: support@naviflow.com\n📱 Phone: +1 (555) 123-NAVI\n🎯 For live chat, contact us about the full system!', 'info');
                 }, 2000);
             }
             
