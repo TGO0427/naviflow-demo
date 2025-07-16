@@ -4042,7 +4042,7 @@ DEVELOPER INFORMATION:
                         this.ws.onopen = () => {
                             console.log('🔗 Connected to live chat server');
                             this.isConnected = true;
-                        this.updateConnectionStatus(true);
+                            this.updateConnectionStatus(true);
                         
                         // Register with server
                         this.ws.send(JSON.stringify({
